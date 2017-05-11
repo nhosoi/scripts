@@ -2,22 +2,22 @@
 
 ## Preparation
 
-1. Disable RateLimit in /etc/systemd/journald.conf as follows.
+Disable RateLimit in /etc/systemd/journald.conf as follows.
    See journald.conf(5) for details.
 
-    [Journal]
+    In the Journal section:
+
     RateLimitInterval=0
     RateLimitBurst=0
 
    Restart journald
-   # systemctl restart systemd-journald.service
+   \# systemctl restart systemd-journald.service
 
-2. Disable RateLimit in /etc/rsyslog.conf as follows.
+Disable RateLimit in /etc/rsyslog.conf as follows.
    See rsyslog.conf(5) for details.
 
-    #### GLOBAL DIRECTIVES ####
+    In the GLOBAL DIRECTIVES section:
 
-    # Disable rate-limiting of log entries
     $SystemLogRateLimitInterval 0
     $SystemLogRateLimitBurst 0
 
@@ -26,7 +26,7 @@
     $imjournalRatelimitBurst 0
 
    Restart rsyslog
-   # systemctl restart rsyslog.service
+   \# systemctl restart rsyslog.service
 
 ## Run
 
