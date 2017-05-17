@@ -2,13 +2,17 @@
 
 ## Preparation
 
-Disable RateLimit in /etc/systemd/journald.conf as follows.
+Disable RateLimit in /etc/systemd/journald.conf as follows not to lose logs 
+due to the log burst as well as the trimming.
    See journald.conf(5) for details.
 
     In the Journal section:
 
     RateLimitInterval=0
     RateLimitBurst=0
+    SystemMaxUse=4G
+    RuntimeMaxUse=4G
+    MaxFileSec=1month
 
    Restart journald
    \# systemctl restart systemd-journald.service

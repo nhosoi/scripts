@@ -27,6 +27,7 @@ SECPATH="/etc/elasticsearch/secret"
 OUT="/tmp/${VERSION}.out"
 TMP="/tmp/${VERSION}.tmp"
 prevlog=""
+since=`date -d "2 days ago" '+%Y-%m-%d 00:00:00'`
 echo "Version $VERSION, Fluentd $FPOD, ES $EPOD" > $OUT
 echo "==================================================================================" >> $OUT
 while true
@@ -37,7 +38,7 @@ do
         if [ -f $MESSAGES ]; then
             lastline=`sudo egrep "stress_tag_${PREFIX}.* short_message_${PREFIX}" $MESSAGES | tail -n 1`
         else
-            lastline=`journalctl | egrep "stress_tag_${PREFIX}.* short_message_${PREFIX}" | tail -n 1`
+            lastline=`journalctl -S "$since" -r | egrep "stress_tag_${PREFIX}.* short_message_${PREFIX}" | egrep -v egrep | head -n 1`
         fi
         sleep 1
     done

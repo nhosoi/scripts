@@ -9,15 +9,15 @@ if [ "$EPOD" = "" ]; then
     exit 1
 fi 
 SECRETPATH="/etc/elasticsearch/secret"
-prevmessage=""
-prevtimestamp=""
-timestamp=""
+since=`date -d "2 days ago" '+%Y-%m-%d 00:00:00'`
 while [ $ID -lt 1000 ]
 do
     TAG="stress_tag_${PREFIX}_$ID"
     echo "Tag: $TAG"
     count=`oc exec $EPOD -- curl -s -k --cert $SECRETPATH/admin-cert --key $SECRETPATH/admin-key "https://localhost:9200/.operations.**/_search?size=9999&q=systemd.u.SYSLOG_IDENTIFIER:$TAG" | python -mjson.tool | egrep "\<$TAG\>" | wc -l`
     echo $count
+    prevmessage=""
+    prevtimestamp=""
     if [[ $VERBOSE ]]; then
         for val in `oc exec $EPOD -- curl -s -k --cert $SECRETPATH/admin-cert --key $SECRETPATH/admin-key "https://localhost:9200/.operations.**/_search?sort="@timestamp"&size=9999&q=systemd.u.SYSLOG_IDENTIFIER:$TAG" | python -mjson.tool | egrep "\"@timestamp\":|\"message\":" | awk '{print $2}'`
         do
@@ -38,7 +38,8 @@ exit 1
     echo "=============="
     echo "Check journald"
     echo "=============="
-    jcount=`journalctl | egrep "\<$TAG\>" | wc -l`
+    # In case, the logs are flooded and common logging needs some time to catch up.
+    jcount=`journalctl -S "$since" | egrep "\<$TAG\>" | wc -l`
     if [ $jcount -eq $count ]; then
        echo "  Counts matched: $jcount"
     else
